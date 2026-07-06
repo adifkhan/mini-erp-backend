@@ -15,7 +15,7 @@ Controller → Service → Repository → MongoDB (Mongoose)
 ```bash
 cp .env.example .env
 npm install
-npm run seed   # creates admin@minierp.com / Admin@123
+npm run seed   # creates admin@minierp.com / Admin@123, manager@minierp.com / Manager@123, employee@minierp.com / Employee@123
 npm run dev
 ```
 

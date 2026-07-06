@@ -8,21 +8,39 @@ import { User } from "../models/user.model";
 const seed = async () => {
   await connectDB();
 
-  const existingAdmin = await User.findOne({ email: "admin@minierp.com" });
-  if (existingAdmin) {
-    console.log("Admin already exists");
-    await mongoose.disconnect();
-    return;
+  const users = [
+    {
+      name: "Admin",
+      email: "admin@minierp.com",
+      password: "Admin@123",
+      role: "admin",
+    },
+    {
+      name: "Manager",
+      email: "manager@minierp.com",
+      password: "Manager@123",
+      role: "manager",
+    },
+    {
+      name: "Employee",
+      email: "employee@minierp.com",
+      password: "Employee@123",
+      role: "employee",
+    },
+  ];
+
+  for (const u of users) {
+    const exists = await User.findOne({ email: u.email });
+
+    if (exists) {
+      console.log(`${u.role} already exists: ${u.email}`);
+      continue;
+    }
+
+    await User.create(u);
+    console.log(`${u.role} created: ${u.email} / ${u.password}`);
   }
 
-  await User.create({
-    name: "Admin",
-    email: "admin@minierp.com",
-    password: "Admin@123",
-    role: "admin",
-  });
-
-  console.log("Admin user created: admin@minierp.com / Admin@123");
   await mongoose.disconnect();
 };
 
