@@ -6,10 +6,7 @@ class UserRepository extends BaseRepository<IUser> {
     super(User);
   }
 
-  async findByEmail(
-    email: string,
-    withPassword = false,
-  ): Promise<IUser | null> {
+  async findByEmail(email: string, withPassword = false): Promise<IUser | null> {
     const query = this.model.findOne({ email: email.toLowerCase() });
     if (withPassword) query.select("+password");
     return query.exec();

@@ -16,6 +16,19 @@ export interface PaginationMeta {
   totalPages: number;
 }
 
+/**
+ * Generic, reusable query builder for Mongoose queries.
+ * Handles: text search, arbitrary field filters, sorting, and pagination.
+ *
+ * Usage:
+ *   const features = new QueryBuilder(Product.find(), req.query)
+ *     .search(["name", "sku", "category"])
+ *     .filter(["category"])
+ *     .sort()
+ *     .paginate();
+ *   const data = await features.query;
+ *   const meta = await features.getPaginationMeta(Product);
+ */
 export class QueryBuilder<T extends Document> {
   public query: Query<T[], T>;
   private queryParams: QueryParams;
@@ -35,10 +48,7 @@ export class QueryBuilder<T extends Document> {
     if (search && fields.length > 0) {
       const regex = new RegExp(search.trim(), "i");
       const orConditions = fields.map((field) => ({ [field]: regex }));
-      this.appliedFilter = {
-        ...this.appliedFilter,
-        $or: orConditions,
-      } as FilterQuery<T>;
+      this.appliedFilter = { ...this.appliedFilter, $or: orConditions } as FilterQuery<T>;
       this.query = this.query.find(this.appliedFilter);
     }
     return this;
@@ -53,10 +63,7 @@ export class QueryBuilder<T extends Document> {
       }
     });
     if (Object.keys(extraFilter).length > 0) {
-      this.appliedFilter = {
-        ...this.appliedFilter,
-        ...extraFilter,
-      } as FilterQuery<T>;
+      this.appliedFilter = { ...this.appliedFilter, ...extraFilter } as FilterQuery<T>;
       this.query = this.query.find(extraFilter as FilterQuery<T>);
     }
     return this;
@@ -83,9 +90,7 @@ export class QueryBuilder<T extends Document> {
     return this.appliedFilter;
   }
 
-  async getPaginationMeta(model: {
-    countDocuments: (f: FilterQuery<T>) => Promise<number>;
-  }): Promise<PaginationMeta> {
+  async getPaginationMeta(model: { countDocuments: (f: FilterQuery<T>) => Promise<number> }): Promise<PaginationMeta> {
     const total = await model.countDocuments(this.appliedFilter);
     return {
       total,

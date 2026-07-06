@@ -9,12 +9,7 @@ export const notFoundHandler = (req: Request, res: Response) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const globalErrorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   let statusCode = 500;
   let message = "Internal Server Error";
   let errors: unknown[] | undefined;

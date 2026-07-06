@@ -12,7 +12,5 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
 export const getMe = asyncHandler(async (req: AuthRequest, res: Response) => {
   const profile = await authService.getProfile(req.user!.id);
-  res
-    .status(200)
-    .json(new ApiResponse("Profile fetched successfully", profile));
+  res.status(200).json(new ApiResponse("Profile fetched successfully", profile));
 });

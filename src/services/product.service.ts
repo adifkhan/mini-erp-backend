@@ -1,9 +1,8 @@
-import fs from "fs";
-import path from "path";
 import { productRepository } from "../repositories/product.repository";
 import { ApiError } from "../utils/apiError";
 import { QueryParams } from "../utils/queryBuilder";
 import { IProduct } from "../models/product.model";
+import { deleteCloudinaryImage } from "../utils/cloudinaryUpload";
 
 interface CreateProductInput {
   name: string;
@@ -12,16 +11,18 @@ interface CreateProductInput {
   purchasePrice: number;
   sellingPrice: number;
   stockQuantity: number;
-  imagePath: string;
+  imageUrl: string; // Cloudinary secure_url, set by controller after upload
+  imagePublicId: string; // Cloudinary public_id, set by controller after upload
 }
 
-type UpdateProductInput = Partial<Omit<CreateProductInput, "imagePath">> & {
-  imagePath?: string;
+type UpdateProductInput = Partial<Omit<CreateProductInput, "imageUrl" | "imagePublicId">> & {
+  imageUrl?: string;
+  imagePublicId?: string;
 };
 
 class ProductService {
   async createProduct(input: CreateProductInput): Promise<IProduct> {
-    if (!input.imagePath) {
+    if (!input.imageUrl) {
       throw ApiError.badRequest("Product image is required");
     }
 
@@ -37,7 +38,8 @@ class ProductService {
       purchasePrice: input.purchasePrice,
       sellingPrice: input.sellingPrice,
       stockQuantity: input.stockQuantity,
-      image: input.imagePath,
+      image: input.imageUrl,
+      imagePublicId: input.imagePublicId,
     });
   }
 
@@ -51,19 +53,14 @@ class ProductService {
     return product;
   }
 
-  async updateProduct(
-    id: string,
-    input: UpdateProductInput,
-  ): Promise<IProduct> {
+  async updateProduct(id: string, input: UpdateProductInput): Promise<IProduct> {
     const product = await productRepository.findById(id);
     if (!product) throw ApiError.notFound("Product not found");
 
     if (input.sku && input.sku.toUpperCase() !== product.sku) {
       const existing = await productRepository.findBySku(input.sku);
       if (existing) {
-        throw ApiError.conflict(
-          `Product with SKU "${input.sku}" already exists`,
-        );
+        throw ApiError.conflict(`Product with SKU "${input.sku}" already exists`);
       }
     }
 
@@ -71,21 +68,16 @@ class ProductService {
       ...(input.name && { name: input.name }),
       ...(input.sku && { sku: input.sku.toUpperCase() }),
       ...(input.category && { category: input.category }),
-      ...(input.purchasePrice !== undefined && {
-        purchasePrice: input.purchasePrice,
-      }),
-      ...(input.sellingPrice !== undefined && {
-        sellingPrice: input.sellingPrice,
-      }),
-      ...(input.stockQuantity !== undefined && {
-        stockQuantity: input.stockQuantity,
-      }),
+      ...(input.purchasePrice !== undefined && { purchasePrice: input.purchasePrice }),
+      ...(input.sellingPrice !== undefined && { sellingPrice: input.sellingPrice }),
+      ...(input.stockQuantity !== undefined && { stockQuantity: input.stockQuantity }),
     };
 
-    // If a new image was uploaded, replace it and delete the old file
-    if (input.imagePath) {
-      updateData.image = input.imagePath;
-      this.deleteImageFile(product.image);
+    // If a new image was uploaded, swap it in and delete the old Cloudinary asset
+    if (input.imageUrl && input.imagePublicId) {
+      updateData.image = input.imageUrl;
+      updateData.imagePublicId = input.imagePublicId;
+      await deleteCloudinaryImage(product.imagePublicId);
     }
 
     const updated = await productRepository.updateById(id, updateData);
@@ -97,27 +89,11 @@ class ProductService {
     if (!product) throw ApiError.notFound("Product not found");
 
     await productRepository.deleteById(id);
-    this.deleteImageFile(product.image);
+    await deleteCloudinaryImage(product.imagePublicId);
   }
 
   async getLowStockProducts(threshold = 5) {
     return productRepository.findLowStock(threshold);
-  }
-
-  private deleteImageFile(imagePath: string) {
-    try {
-      const fullPath = path.join(
-        __dirname,
-        "..",
-        "..",
-        imagePath.replace(/^\/+/, ""),
-      );
-      if (fs.existsSync(fullPath)) {
-        fs.unlinkSync(fullPath);
-      }
-    } catch (err) {
-      console.error("Failed to delete product image file:", err);
-    }
   }
 }
 

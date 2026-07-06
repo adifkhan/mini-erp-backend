@@ -6,13 +6,12 @@ const LOW_STOCK_THRESHOLD = 5;
 
 class DashboardService {
   async getStats() {
-    const [totalProducts, totalCustomers, totalSales, lowStockProducts] =
-      await Promise.all([
-        productRepository.count(),
-        customerRepository.count(),
-        saleRepository.countAll(),
-        productRepository.findLowStock(LOW_STOCK_THRESHOLD),
-      ]);
+    const [totalProducts, totalCustomers, totalSales, lowStockProducts] = await Promise.all([
+      productRepository.count(),
+      customerRepository.count(),
+      saleRepository.countAll(),
+      productRepository.findLowStock(LOW_STOCK_THRESHOLD),
+    ]);
 
     return {
       totalProducts,

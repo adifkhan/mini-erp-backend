@@ -32,7 +32,7 @@ const userSchema = new Schema<IUser>(
     },
     isActive: { type: Boolean, default: true },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 userSchema.pre("save", async function (next) {
@@ -42,9 +42,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.comparePassword = async function (
-  candidate: string,
-): Promise<boolean> {
+userSchema.methods.comparePassword = async function (candidate: string): Promise<boolean> {
   return bcrypt.compare(candidate, this.password);
 };
 

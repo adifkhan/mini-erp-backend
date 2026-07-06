@@ -16,12 +16,9 @@ const customerSchema = new Schema<ICustomer>(
     phone: { type: String, required: true, trim: true },
     address: { type: String, trim: true },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 customerSchema.index({ name: "text", phone: "text", email: "text" });
 
-export const Customer: Model<ICustomer> = mongoose.model<ICustomer>(
-  "Customer",
-  customerSchema,
-);
+export const Customer: Model<ICustomer> = mongoose.model<ICustomer>("Customer", customerSchema);

@@ -1,7 +1,6 @@
 import express, { Application } from "express";
 import cors from "cors";
 import morgan from "morgan";
-import path from "path";
 import routes from "./routes";
 import {
   notFoundHandler,
@@ -23,12 +22,10 @@ if (process.env.NODE_ENV !== "test") {
   app.use(morgan("dev"));
 }
 
-// Serve uploaded product images statically
-app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+// Product images live on Cloudinary now (see utils/cloudinaryUpload.ts) — no local
+// static file serving needed, which also means this works unmodified on Vercel's
+// read-only serverless filesystem.
 
-app.get("/", (_req, res) => {
-  res.status(200).json({ success: true, message: "Mini ERP API is running" });
-});
 app.get("/health", (_req, res) => {
   res.status(200).json({ success: true, message: "Mini ERP API is running" });
 });

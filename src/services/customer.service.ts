@@ -14,9 +14,7 @@ class CustomerService {
   async createCustomer(input: CustomerInput): Promise<ICustomer> {
     const existing = await customerRepository.findByPhone(input.phone);
     if (existing) {
-      throw ApiError.conflict(
-        `Customer with phone "${input.phone}" already exists`,
-      );
+      throw ApiError.conflict(`Customer with phone "${input.phone}" already exists`);
     }
     return customerRepository.create(input);
   }
@@ -31,19 +29,14 @@ class CustomerService {
     return customer;
   }
 
-  async updateCustomer(
-    id: string,
-    input: Partial<CustomerInput>,
-  ): Promise<ICustomer> {
+  async updateCustomer(id: string, input: Partial<CustomerInput>): Promise<ICustomer> {
     const customer = await customerRepository.findById(id);
     if (!customer) throw ApiError.notFound("Customer not found");
 
     if (input.phone && input.phone !== customer.phone) {
       const existing = await customerRepository.findByPhone(input.phone);
       if (existing) {
-        throw ApiError.conflict(
-          `Customer with phone "${input.phone}" already exists`,
-        );
+        throw ApiError.conflict(`Customer with phone "${input.phone}" already exists`);
       }
     }
 

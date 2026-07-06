@@ -10,11 +10,7 @@ import { protect } from "../middlewares/auth.middleware";
 import { authorize } from "../middlewares/role.middleware";
 import { uploadProductImage } from "../middlewares/upload.middleware";
 import { validate } from "../middlewares/validate.middleware";
-import {
-  createProductSchema,
-  updateProductSchema,
-  productIdParamSchema,
-} from "../validations/product.validation";
+import { createProductSchema, updateProductSchema, productIdParamSchema } from "../validations/product.validation";
 
 const router = Router();
 
@@ -31,14 +27,14 @@ router.post(
   authorize("admin", "manager"),
   uploadProductImage,
   validate(createProductSchema),
-  createProduct,
+  createProduct
 );
 router.put(
   "/:id",
   authorize("admin", "manager"),
   uploadProductImage,
   validate(updateProductSchema),
-  updateProduct,
+  updateProduct
 );
 router.delete("/:id", authorize("admin", "manager"), deleteProduct);
 

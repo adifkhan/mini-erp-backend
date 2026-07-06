@@ -8,10 +8,7 @@ export const createProductSchema = z.object({
     category: z.string().min(1, "Category is required"),
     purchasePrice: z.coerce.number().nonnegative("Purchase price must be >= 0"),
     sellingPrice: z.coerce.number().nonnegative("Selling price must be >= 0"),
-    stockQuantity: z.coerce
-      .number()
-      .int()
-      .nonnegative("Stock quantity must be >= 0"),
+    stockQuantity: z.coerce.number().int().nonnegative("Stock quantity must be >= 0"),
   }),
 });
 

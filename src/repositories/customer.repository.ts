@@ -1,10 +1,6 @@
 import { BaseRepository } from "./base.repository";
 import { Customer, ICustomer } from "../models/customer.model";
-import {
-  QueryBuilder,
-  QueryParams,
-  PaginationMeta,
-} from "../utils/queryBuilder";
+import { QueryBuilder, QueryParams, PaginationMeta } from "../utils/queryBuilder";
 
 class CustomerRepository extends BaseRepository<ICustomer> {
   constructor() {
@@ -15,18 +11,13 @@ class CustomerRepository extends BaseRepository<ICustomer> {
     return this.model.findOne({ phone });
   }
 
-  async findPaginated(
-    queryParams: QueryParams,
-  ): Promise<{ data: ICustomer[]; meta: PaginationMeta }> {
+  async findPaginated(queryParams: QueryParams): Promise<{ data: ICustomer[]; meta: PaginationMeta }> {
     const builder = new QueryBuilder<ICustomer>(this.model.find(), queryParams)
       .search(["name", "phone", "email"])
       .sort()
       .paginate();
 
-    const [data, meta] = await Promise.all([
-      builder.query.exec(),
-      builder.getPaginationMeta(this.model),
-    ]);
+    const [data, meta] = await Promise.all([builder.query.exec(), builder.getPaginationMeta(this.model)]);
 
     return { data, meta };
   }

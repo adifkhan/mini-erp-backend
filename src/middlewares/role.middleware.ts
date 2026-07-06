@@ -14,9 +14,7 @@ export const authorize = (...allowedRoles: UserRole[]) => {
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      throw ApiError.forbidden(
-        "You do not have permission to perform this action",
-      );
+      throw ApiError.forbidden("You do not have permission to perform this action");
     }
 
     next();

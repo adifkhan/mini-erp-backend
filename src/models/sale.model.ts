@@ -2,9 +2,9 @@ import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 export interface ISaleItem {
   product: Types.ObjectId;
-  productName: string;
+  productName: string; // snapshot at time of sale
   quantity: number;
-  unitPrice: number;
+  unitPrice: number; // snapshot of sellingPrice at time of sale
   subtotal: number;
 }
 
@@ -12,7 +12,7 @@ export interface ISale extends Document {
   customer: Types.ObjectId;
   items: ISaleItem[];
   grandTotal: number;
-  soldBy: Types.ObjectId;
+  soldBy: Types.ObjectId; // user who created the sale
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,7 +25,7 @@ const saleItemSchema = new Schema<ISaleItem>(
     unitPrice: { type: Number, required: true, min: 0 },
     subtotal: { type: Number, required: true, min: 0 },
   },
-  { _id: false },
+  { _id: false }
 );
 
 const saleSchema = new Schema<ISale>(
@@ -42,7 +42,7 @@ const saleSchema = new Schema<ISale>(
     grandTotal: { type: Number, required: true, min: 0 },
     soldBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export const Sale: Model<ISale> = mongoose.model<ISale>("Sale", saleSchema);
