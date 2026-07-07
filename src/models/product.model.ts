@@ -7,8 +7,8 @@ export interface IProduct extends Document {
   purchasePrice: number;
   sellingPrice: number;
   stockQuantity: number;
-  image: string; // Cloudinary secure_url
-  imagePublicId: string; // Cloudinary public_id, needed to delete/replace the asset
+  image: string; 
+  imagePublicId: string; 
   createdAt: Date;
   updatedAt: Date;
 }
