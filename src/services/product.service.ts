@@ -11,11 +11,13 @@ interface CreateProductInput {
   purchasePrice: number;
   sellingPrice: number;
   stockQuantity: number;
-  imageUrl: string; // Cloudinary secure_url, set by controller after upload
-  imagePublicId: string; // Cloudinary public_id, set by controller after upload
+  imageUrl: string;
+  imagePublicId: string;
 }
 
-type UpdateProductInput = Partial<Omit<CreateProductInput, "imageUrl" | "imagePublicId">> & {
+type UpdateProductInput = Partial<
+  Omit<CreateProductInput, "imageUrl" | "imagePublicId">
+> & {
   imageUrl?: string;
   imagePublicId?: string;
 };
@@ -53,14 +55,19 @@ class ProductService {
     return product;
   }
 
-  async updateProduct(id: string, input: UpdateProductInput): Promise<IProduct> {
+  async updateProduct(
+    id: string,
+    input: UpdateProductInput,
+  ): Promise<IProduct> {
     const product = await productRepository.findById(id);
     if (!product) throw ApiError.notFound("Product not found");
 
     if (input.sku && input.sku.toUpperCase() !== product.sku) {
       const existing = await productRepository.findBySku(input.sku);
       if (existing) {
-        throw ApiError.conflict(`Product with SKU "${input.sku}" already exists`);
+        throw ApiError.conflict(
+          `Product with SKU "${input.sku}" already exists`,
+        );
       }
     }
 
@@ -68,9 +75,15 @@ class ProductService {
       ...(input.name && { name: input.name }),
       ...(input.sku && { sku: input.sku.toUpperCase() }),
       ...(input.category && { category: input.category }),
-      ...(input.purchasePrice !== undefined && { purchasePrice: input.purchasePrice }),
-      ...(input.sellingPrice !== undefined && { sellingPrice: input.sellingPrice }),
-      ...(input.stockQuantity !== undefined && { stockQuantity: input.stockQuantity }),
+      ...(input.purchasePrice !== undefined && {
+        purchasePrice: input.purchasePrice,
+      }),
+      ...(input.sellingPrice !== undefined && {
+        sellingPrice: input.sellingPrice,
+      }),
+      ...(input.stockQuantity !== undefined && {
+        stockQuantity: input.stockQuantity,
+      }),
     };
 
     // If a new image was uploaded, swap it in and delete the old Cloudinary asset

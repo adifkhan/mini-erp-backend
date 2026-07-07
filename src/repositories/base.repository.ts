@@ -1,9 +1,11 @@
-import { Model, Document, FilterQuery, UpdateQuery, PopulateOptions } from "mongoose";
+import {
+  Model,
+  Document,
+  FilterQuery,
+  UpdateQuery,
+  PopulateOptions,
+} from "mongoose";
 
-/**
- * Generic base repository - handles raw MongoDB/Mongoose operations only.
- * No business logic should live here.
- */
 export class BaseRepository<T extends Document> {
   protected model: Model<T>;
 
@@ -15,13 +17,19 @@ export class BaseRepository<T extends Document> {
     return this.model.create(data);
   }
 
-  async findById(id: string, populate?: PopulateOptions | (string | PopulateOptions)[]): Promise<T | null> {
+  async findById(
+    id: string,
+    populate?: PopulateOptions | (string | PopulateOptions)[],
+  ): Promise<T | null> {
     const query = this.model.findById(id);
     if (populate) query.populate(populate);
     return query.exec();
   }
 
-  async findOne(filter: FilterQuery<T>, selectFields?: string): Promise<T | null> {
+  async findOne(
+    filter: FilterQuery<T>,
+    selectFields?: string,
+  ): Promise<T | null> {
     const query = this.model.findOne(filter);
     if (selectFields) query.select(selectFields);
     return query.exec();
@@ -29,7 +37,11 @@ export class BaseRepository<T extends Document> {
 
   async findAll(
     filter: FilterQuery<T> = {},
-    options: { skip?: number; limit?: number; sort?: Record<string, 1 | -1> } = {}
+    options: {
+      skip?: number;
+      limit?: number;
+      sort?: Record<string, 1 | -1>;
+    } = {},
   ): Promise<T[]> {
     const query = this.model.find(filter);
     if (options.sort) query.sort(options.sort);
@@ -43,7 +55,9 @@ export class BaseRepository<T extends Document> {
   }
 
   async updateById(id: string, data: UpdateQuery<T>): Promise<T | null> {
-    return this.model.findByIdAndUpdate(id, data, { new: true, runValidators: true }).exec();
+    return this.model
+      .findByIdAndUpdate(id, data, { new: true, runValidators: true })
+      .exec();
   }
 
   async deleteById(id: string): Promise<T | null> {

@@ -22,10 +22,6 @@ if (process.env.NODE_ENV !== "test") {
   app.use(morgan("dev"));
 }
 
-// Product images live on Cloudinary now (see utils/cloudinaryUpload.ts) — no local
-// static file serving needed, which also means this works unmodified on Vercel's
-// read-only serverless filesystem.
-
 app.get("/health", (_req, res) => {
   res.status(200).json({ success: true, message: "Mini ERP API is running" });
 });

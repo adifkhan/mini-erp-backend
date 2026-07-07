@@ -19,13 +19,23 @@ const router = Router();
 
 router.use(protect);
 
-// View: Admin, Manager, Employee (employee needs this to pick a customer when creating a sale)
+// View: Admin, Manager, Employee
 router.get("/", getCustomers);
 router.get("/:id", validate(customerIdParamSchema), getCustomerById);
 
 // Manage: Admin, Manager only
-router.post("/", authorize("admin", "manager"), validate(createCustomerSchema), createCustomer);
-router.put("/:id", authorize("admin", "manager"), validate(updateCustomerSchema), updateCustomer);
+router.post(
+  "/",
+  authorize("admin", "manager"),
+  validate(createCustomerSchema),
+  createCustomer,
+);
+router.put(
+  "/:id",
+  authorize("admin", "manager"),
+  validate(updateCustomerSchema),
+  updateCustomer,
+);
 router.delete("/:id", authorize("admin", "manager"), deleteCustomer);
 
 export default router;

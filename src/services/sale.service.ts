@@ -23,13 +23,18 @@ class SaleService {
       throw ApiError.badRequest("A sale must contain at least one product");
     }
 
-    // Merge duplicate product entries (e.g. same product added twice in the UI)
+    // Merge duplicate product entries
     const mergedItemsMap = new Map<string, number>();
     for (const item of input.items) {
       if (item.quantity <= 0) {
-        throw ApiError.badRequest("Quantity must be greater than 0 for all items");
+        throw ApiError.badRequest(
+          "Quantity must be greater than 0 for all items",
+        );
       }
-      mergedItemsMap.set(item.productId, (mergedItemsMap.get(item.productId) || 0) + item.quantity);
+      mergedItemsMap.set(
+        item.productId,
+        (mergedItemsMap.get(item.productId) || 0) + item.quantity,
+      );
     }
 
     const customer = await customerRepository.findById(input.customerId);
@@ -45,23 +50,30 @@ class SaleService {
         let grandTotal = 0;
 
         for (const [productId, quantity] of mergedItemsMap) {
-          // Peek at the product first to give a precise error message
-          const product = await productRepository.findByIdWithSession(productId, session);
+          const product = await productRepository.findByIdWithSession(
+            productId,
+            session,
+          );
           if (!product) {
             throw ApiError.notFound(`Product not found: ${productId}`);
           }
 
           if (product.stockQuantity < quantity) {
             throw ApiError.badRequest(
-              `Insufficient stock for "${product.name}". Available: ${product.stockQuantity}, requested: ${quantity}`
+              `Insufficient stock for "${product.name}". Available: ${product.stockQuantity}, requested: ${quantity}`,
             );
           }
 
-          // Atomic conditional decrement guards against a race between the peek above
-          // and this update (e.g. a concurrent sale draining stock in between).
-          const updatedProduct = await productRepository.decrementStockIfAvailable(productId, quantity, session);
+          const updatedProduct =
+            await productRepository.decrementStockIfAvailable(
+              productId,
+              quantity,
+              session,
+            );
           if (!updatedProduct) {
-            throw ApiError.badRequest(`Insufficient stock for "${product.name}" (concurrent sale in progress)`);
+            throw ApiError.badRequest(
+              `Insufficient stock for "${product.name}" (concurrent sale in progress)`,
+            );
           }
 
           const subtotal = product.sellingPrice * quantity;
@@ -83,15 +95,14 @@ class SaleService {
             grandTotal,
             soldBy: input.soldBy as unknown as mongoose.Types.ObjectId,
           },
-          session
+          session,
         );
       });
 
       if (!createdSale) {
-        // Should be unreachable: withTransaction only resolves after the callback
-        // completes without throwing, and the callback always assigns createdSale
-        // before returning. Guarding explicitly instead of type-casting past it.
-        throw ApiError.internal("Sale transaction completed without creating a sale record");
+        throw ApiError.internal(
+          "Sale transaction completed without creating a sale record",
+        );
       }
 
       return createdSale;

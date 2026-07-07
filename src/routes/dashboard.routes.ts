@@ -7,7 +7,7 @@ const router = Router();
 
 router.use(protect);
 
-// Oversight-level data: Admin, Manager only
+//  Admin, Manager only
 router.get("/stats", authorize("admin", "manager"), getDashboardStats);
 
 export default router;
