@@ -16,7 +16,6 @@ const router = Router();
 
 router.use(protect);
 
-// Create Sale: Admin, Manager, Employee
 router.post(
   "/",
   authorize("admin", "manager", "employee"),
@@ -24,11 +23,10 @@ router.post(
   createSale,
 );
 
-// Sale history / reporting: Admin, Manager
-router.get("/", authorize("admin", "manager"), getSales);
+router.get("/", authorize("admin", "manager", "employee"), getSales);
 router.get(
   "/:id",
-  authorize("admin", "manager"),
+  authorize("admin", "manager", "employee"),
   validate(saleIdParamSchema),
   getSaleById,
 );
