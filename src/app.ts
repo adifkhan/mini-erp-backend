@@ -23,7 +23,7 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 app.get("/", (_req, res) => {
-  res.status(200).json({ success: true, message: "Mini ERP API is running" });
+  res.status(200).json({ success: true, message: "Welcome to Mini ERP" });
 });
 app.get("/health", (_req, res) => {
   res.status(200).json({ success: true, message: "Mini ERP API is running" });
